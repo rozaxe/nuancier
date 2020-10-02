@@ -35,7 +35,7 @@
     "workerize-loader": "^1.3.0"
   },
   "scripts": {
-    "build": "parcel build ./src/index.html",
+    "build": "parcel build ./src/index.html -d public",
     "lint": "tsc --noEmit && eslint --fix --ext .js,.jsx,.ts,.tsx src",
     "start": "parcel ./src/index.html",
     "storybook": "start-storybook -p 6006",
