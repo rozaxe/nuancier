@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src",
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment",
+    "paths": {
+      "~/*": ["./*"]
+    },
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["src/**/*"]
+}
