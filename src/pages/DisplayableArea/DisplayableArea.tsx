@@ -121,8 +121,8 @@ class DisplayableArea extends Component<DisplayableAreaProps & ResizeProps> {
 
 	render() {
 		return (
-			<div className={styles.container}>
-				<canvas ref={this.canvasRef} className={classNames(styles.content, this.props.className)} />
+			<div className={classNames(styles.container, this.props.className)}>
+				<canvas ref={this.canvasRef} className={styles.content} />
 			</div>
 		)
 	}
