@@ -32,7 +32,8 @@
                 "@typescript-eslint/indent": [
                     "warn",
                     "tab"
-                ]
+                ],
+                "@typescript-eslint/no-inferrable-types": "off"
             }
         }
     ],

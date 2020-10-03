@@ -1,7 +1,7 @@
 // @ts-expect-error: Custom webpack loader for importing Web Worker
 import DrawerWorker from 'workerize-loader!./worker'
 
-import React, { Component, createRef, RefObject } from 'react'
+import React, { Component, createRef, FunctionComponent, RefObject } from 'react'
 import { withResizeDetector } from 'react-resize-detector'
 import classNames from 'classnames'
 import { debounce } from 'lodash-es'
@@ -12,11 +12,18 @@ import styles from './DisplayableArea.module.scss'
  */
 
 type DisplayableAreaProps = {
-	width: number
-	height: number
 	colors: Color[]
 	channel: Channel
+
 	className?: string
+	
+	onStartDrawing?(): void
+	onDoneDrawing?(): void
+}
+
+type ResizeProps = {
+	width: number
+	height: number
 }
 
 function domainFor(channel) {
@@ -31,11 +38,17 @@ function domainFor(channel) {
 	throw new Error('Wrong channel')
 }
 
-class DisplayableArea extends Component<DisplayableAreaProps> {
+class DisplayableArea extends Component<DisplayableAreaProps & ResizeProps> {
+
+	static defaultProps = {
+		onStartDrawing: () => null,
+		onDoneDrawing: () => null,
+	}
 
 	canvasRef: RefObject<HTMLCanvasElement> = createRef()
 	debounceDrawArea: () => void
 	worker: any // Type of DrawerWorker
+	working: boolean = false
 	context2d: CanvasRenderingContext2D
 	absoluteWidth: number
 	absoluteHeight: number
@@ -50,7 +63,7 @@ class DisplayableArea extends Component<DisplayableAreaProps> {
 	}
 
 	componentDidUpdate(prevProps) {
-		const { colors, width, height } = this.props
+		const { colors, channel, width, height } = this.props
 
 		// Redraw on resize
 		if (width !== prevProps.width || height !== prevProps.height) {
@@ -62,13 +75,20 @@ class DisplayableArea extends Component<DisplayableAreaProps> {
 			this.canvasRef.current.width = this.absoluteWidth
 			this.canvasRef.current.height = this.absoluteHeight
 
-			this.debounceDrawArea()
+			this.requestAreaDrawing()
 		}
 
-		// Redraw on colors changed
-		if (colors !== prevProps.colors) {
-			this.debounceDrawArea()
+		// Redraw on colors or channel changed
+		if (colors !== prevProps.colors || channel !== prevProps.channel) {
+			this.requestAreaDrawing()
 		}
+	}
+
+	requestAreaDrawing = () => {
+		this.debounceDrawArea()
+		if (this.working) return
+		this.working = true
+		this.props.onStartDrawing()
 	}
 
 	drawArea = async () => {
@@ -89,13 +109,14 @@ class DisplayableArea extends Component<DisplayableAreaProps> {
 			domainForChannel: domainFor(this.props.channel),
 			channel: this.props.channel,
 		})
+		
+		const imageData = new ImageData(pixels, this.absoluteWidth, this.absoluteHeight)
+		this.context2d.putImageData(imageData, 0, 0)
 
 		this.worker.terminate()
 		this.worker = null
-
-		const imageData = new ImageData(pixels, this.absoluteWidth, this.absoluteHeight)
-
-		this.context2d.putImageData(imageData, 0, 0)
+		this.working = false
+		this.props.onDoneDrawing()
 	}
 
 	render() {
@@ -107,4 +128,4 @@ class DisplayableArea extends Component<DisplayableAreaProps> {
 	}
 }
 
-export default withResizeDetector(DisplayableArea)
+export default withResizeDetector(DisplayableArea) as FunctionComponent<DisplayableAreaProps>
