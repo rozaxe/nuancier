@@ -36,59 +36,27 @@ export default function ColorsCurves({ colors,
 	onSet,
 	selected }: ColorsCurvesProps): ReactElement {
 
-	const [idle, setIdle] = useState(false)
-
 	const container = useRef<any>()
 	const handles = useRef<any>()
 	const containerRect = useRef<any>()
 	const ratio = useRef(0)
 	const width = useRef(0)
 	const height = useRef(0)
-	const background = useRef<any>()
-	const foreground = useRef<any>()
 	const domainForChannel = useRef<any>()
 	const axisForChannel = useRef<any>()
-	const idleTimeout = useRef<any>()
 	const count = useRef(colors.length)
 	const colorsRef = useRef(colors)
-	const paintOrder = useRef(0)
 
 	const drawForeground = () => {
-		foreground.current.clearRect(0, 0, width.current, height.current)
 		const subWidth = width.current / colors.length
-
+	
 		_.forEach(colors, (color, i) => {
 			const x = i * subWidth + subWidth / 2
 			const y = axisForChannel.current(color[channel])
-			const start = 0
-			const end = 2 * Math.PI
-
-			const outer = i === selected ? 8 : 6
-			const inner = i === selected ? 6 : 4
-
-			foreground.current.strokeStyle = '#848484'
-			foreground.current.fillStyle = 'white'
-
-			foreground.current.beginPath()
-			foreground.current.arc(x, y, outer * ratio.current, start, end)
-			foreground.current.stroke()
-			foreground.current.fill()
-
-			foreground.current.fillStyle = toHex(color)
-			foreground.current.beginPath()
-			foreground.current.arc(x, y, inner * ratio.current, start, end)
-			foreground.current.fill()
 
 			handles.current[i].style.left = `${x / ratio.current}px`
 			handles.current[i].style.top = `${y / ratio.current}px`
 		})
-	}
-
-	const applySizeOn = (element) => {
-		element.style.width = `${container.current.clientWidth}px`
-		element.style.height = `${container.current.clientHeight}px`
-		element.width = width.current
-		element.height = height.current
 	}
 
 	const computeContainerSize = () => {
@@ -100,7 +68,7 @@ export default function ColorsCurves({ colors,
 	}
 
 	const selectHandles = () => {
-		handles.current = container.current.querySelectorAll('.handle')
+		handles.current = container.current.querySelectorAll('.handleArea')
 	}
 
 	const containerRef = useCallback(async (node: HTMLDivElement) => {
@@ -115,11 +83,6 @@ export default function ColorsCurves({ colors,
 		width.current = node.clientWidth * ratio.current
 		height.current = node.clientHeight * ratio.current
 
-		const foregroundNode = node.querySelector('.foreground')  as HTMLCanvasElement
-		foreground.current = foregroundNode.getContext('2d')
-
-		applySizeOn(foregroundNode)
-
 		domainForChannel.current = domainFor(channel)
 		axisForChannel.current = scaleLinear()
 			.domain(domainForChannel.current)
@@ -132,7 +95,6 @@ export default function ColorsCurves({ colors,
 			count.current = colors.length
 			selectHandles()
 		}
-		setIdle(false)
 		colorsRef.current = colors
 		draw()
 
@@ -162,13 +124,12 @@ export default function ColorsCurves({ colors,
 	}
 
 	return (
-		<div className={styles.content}>
-			<div className='container' ref={containerRef}>
-				<canvas className='canvas foreground' />
-				{colors.map((_, i) => (
-					<div key={i} className='handle' onMouseDown={event => startMove(event, i)} />
-				))}
-			</div>
+		<div className={styles.container} ref={containerRef}>
+			{colors.map((color, i) => (
+				<div key={i} className={classNames('handleArea', styles.handleArea)} onMouseDown={event => startMove(event, i)}>
+					<div className={classNames(styles.handle, { [styles.selected]: i === selected})} style={{ backgroundColor: toHex(color) }} />
+				</div>
+			))}
 		</div>
 	)
 }
