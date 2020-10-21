@@ -1,5 +1,5 @@
 // @ts-expect-error: Custom webpack loader for importing Web Worker
-import DrawerWorker from 'workerize-loader!./worker'
+import DrawerWorker from 'workerize-loader!./worker' // eslint-disable-line import/no-webpack-loader-syntax
 
 import React, { Component, createRef, FunctionComponent, RefObject } from 'react'
 import { withResizeDetector } from 'react-resize-detector'
