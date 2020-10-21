@@ -1,0 +1,46 @@
+
+.axis {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 24px;
+}
+
+.value {
+    position: relative;
+    width: 0;
+    height: 0;
+}
+
+.float {
+    position: absolute;
+    transform: translateX(-50%) translateY(-50%);
+    display: flex;
+    align-items: center;
+    cursor: default;
+    font-family: monospace;
+    font-size: 12px;
+
+    &:hover {
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+
+        .action {
+            opacity: 1;
+        }
+    }
+}
+
+.text {
+    width: 5ch;
+    text-align: center;
+}
+
+.action {
+    user-select: none;
+    cursor: pointer;
+    opacity: 0;
+    width: 2ch;
+    text-align: center;
+}

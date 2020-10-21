@@ -1,7 +1,12 @@
-import React, { ReactElement, useState } from 'react'
-import ColorsGraph from './ColorsGraph/ColorsGraph'
+import React, { useState } from 'react'
+import ColorsGraph from "./ColorsGraph"
 
-export default function App(): ReactElement {
+export default {
+	title: 'Colors graph',
+	component: ColorsGraph
+}
+
+export const Initial = () => {
 
 	const [ colors, setColors ] = useState([
 		{ l: 20, c: 20, h: 120 },

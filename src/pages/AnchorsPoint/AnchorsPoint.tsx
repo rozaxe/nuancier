@@ -1,19 +1,26 @@
-import React, { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { scaleLinear } from 'd3-scale'
-import _ from 'lodash'
+import React, { Component, createRef, FunctionComponent, RefObject } from 'react'
 import classNames from 'classnames'
 import { converter, formatHex } from 'culori'
-
+import { scaleLinear } from 'd3-scale'
+import _ from 'lodash'
+import { withResizeDetector } from 'react-resize-detector'
 import styles from './AnchorsPoint.module.scss'
 
-type ColorsCurvesProps = {
+
+type AnchorsPointProps = {
 	colors: Color[]
 	channel: Channel
-	onSet: (index: any, value: any) => void
-	selected: number
+	selected?: number
+	onChange?: (index: any, value: any) => void
+	className?: string
 }
 
-function domainFor(channel) {
+type ResizeProps = {
+	width: number
+	height: number
+}
+
+function domainFor(channel): [number, number] {
 	switch (channel) {
 		case 'l':
 			return [100, 0]
@@ -31,87 +38,89 @@ function toHex(color: Color) {
 	return formatHex(lch(color))
 }
 
-export default function ColorsCurves({ colors,
-	channel,
-	onSet,
-	selected }: ColorsCurvesProps): ReactElement {
+class AnchorsPoint extends Component<AnchorsPointProps & ResizeProps> {
 
-	const container = useRef<any>()
-	const handles = useRef<any>()
-	const containerRect = useRef<any>()
-	const ratio = useRef(0)
-	const width = useRef(0)
-	const height = useRef(0)
-	const domainForChannel = useRef<any>()
-	const axisForChannel = useRef<any>()
-	const count = useRef(colors.length)
-	const colorsRef = useRef(colors)
+	static defaultProps = {
+		selected: -1,
+		onChange: () => null,
+	}
 
-	const drawForeground = () => {
-		const subWidth = width.current / colors.length
-	
-		_.forEach(colors, (color, i) => {
+	containerRef: RefObject<HTMLDivElement> = createRef()
+	containerRect: DOMRect
+	handles: NodeListOf<HTMLDivElement>
+	absoluteWidth: number
+	absoluteHeight: number
+	domainForChannel: [number, number]
+	axisForChannel: any // d3-scale range
+
+	constructor(props) {
+		super(props)
+	}
+
+	componentDidMount() {
+		this.selectHandles()
+	}
+
+	componentDidUpdate(prevProps) {
+		const { colors, channel, width, height } = this.props
+
+		// Update range on channel or height change
+		if (channel !== prevProps.channel || height !== prevProps.height) {
+			this.domainForChannel = domainFor(channel)
+			this.axisForChannel = scaleLinear()
+				.domain(this.domainForChannel)
+				.range([0, height])
+		}
+
+		// Reselect handles on colors length change
+		if (colors.length !== prevProps.colors.length) {
+			this.selectHandles()
+		}
+
+		// Reposition on resize
+		if (width !== prevProps.width || height !== prevProps.height) {
+			this.computeContainerSize()
+			this.position()
+
+		} else
+
+		// Reposition on colors
+		if (colors !== prevProps.colors) {
+			this.position()
+		}
+	}
+
+	computeContainerSize = () => {
+		this.containerRect = this.containerRef.current.getBoundingClientRect()
+		this.absoluteWidth = this.props.width
+		this.absoluteHeight = this.props.height
+	}
+
+	selectHandles = () => {
+		this.handles = this.containerRef.current.querySelectorAll('.handleArea')
+	}
+
+	position = () => {
+		const subWidth = this.absoluteWidth / this.props.colors.length
+
+		_.forEach(this.props.colors, (color, i) => {
 			const x = i * subWidth + subWidth / 2
-			const y = axisForChannel.current(color[channel])
+			const y = this.axisForChannel(color[this.props.channel])
 
-			handles.current[i].style.left = `${x / ratio.current}px`
-			handles.current[i].style.top = `${y / ratio.current}px`
+			this.handles[i].style.left = `${x}px`
+			this.handles[i].style.top = `${y}px`
 		})
 	}
 
-	const computeContainerSize = () => {
-		containerRect.current = container.current.getBoundingClientRect()
-	}
-
-	const draw = () => {
-		drawForeground()
-	}
-
-	const selectHandles = () => {
-		handles.current = container.current.querySelectorAll('.handleArea')
-	}
-
-	const containerRef = useCallback(async (node: HTMLDivElement) => {
-		if (node == null) {
-			return
-		}
-
-		container.current = node
-		selectHandles()
-		computeContainerSize()
-		ratio.current = window.devicePixelRatio || 1
-		width.current = node.clientWidth * ratio.current
-		height.current = node.clientHeight * ratio.current
-
-		domainForChannel.current = domainFor(channel)
-		axisForChannel.current = scaleLinear()
-			.domain(domainForChannel.current)
-			.range([0, height.current])
-
-	}, [channel])
-
-	useEffect(() => {
-		if (count.current !== colors.length) {
-			count.current = colors.length
-			selectHandles()
-		}
-		colorsRef.current = colors
-		draw()
-
-	}, [ colors ])
-
-	const startMove = (event, index) => {
-		computeContainerSize()
-
+	startMove = (event, index) => {
 		const rect = event.target.getBoundingClientRect()
 		const displacement = event.clientY - rect.top - rect.height / 2
 
 		const handleMouseMove = event => {
-			const y = event.clientY - containerRect.current.top - displacement
-			const relative = 1 - y / containerRect.current.height
-			const value = (domainForChannel.current[0] - domainForChannel.current[1]) * relative
-			const domain = domainFor(channel)
-			onSet(index, _.clamp(value, domain[1], domain[0]))
+			const y = event.clientY - this.containerRect.top - displacement
+			const relative = 1 - y / this.containerRect.height
+			const value = (this.domainForChannel[0] - this.domainForChannel[1]) * relative
+			this.props.onChange(index, _.clamp(value, this.domainForChannel[1], this.domainForChannel[0]))
 		}
 
 		const handleMouseUp = () => {
@@ -123,13 +132,17 @@ export default function ColorsCurves({ colors,
 		window.addEventListener('mouseup', handleMouseUp)
 	}
 
-	return (
-		<div className={styles.container} ref={containerRef}>
-			{colors.map((color, i) => (
-				<div key={i} className={classNames('handleArea', styles.handleArea)} onMouseDown={event => startMove(event, i)}>
-					<div className={classNames(styles.handle, { [styles.selected]: i === selected})} style={{ backgroundColor: toHex(color) }} />
-				</div>
-			))}
-		</div>
-	)
+	render() {
+		return (
+			<div className={classNames(styles.container, this.props.className)} ref={this.containerRef}>
+				{this.props.colors.map((color, i) => (
+					<div key={i} className={classNames('handleArea', styles.handleArea)} onMouseDown={event => this.startMove(event, i)}>
+						<div className={classNames(styles.handle, { [styles.selected]: i === this.props.selected})} style={{ backgroundColor: toHex(color) }} />
+					</div>
+				))}
+			</div>
+		)
+	}
 }
+
+export default withResizeDetector(AnchorsPoint) as FunctionComponent<AnchorsPointProps>

@@ -1,0 +1,19 @@
+
+.container {
+    position: relative;
+    min-width: 100px;
+    min-height: 50px;
+}
+
+.graph {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.buffer {
+    background-color: white;
+    opacity: 0.2;
+}
