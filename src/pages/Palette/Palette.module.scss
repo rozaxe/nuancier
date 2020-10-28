@@ -1,0 +1,41 @@
+
+.grid {
+    display: grid;
+    font-size: 12px;
+}
+
+.tintName {
+    max-width: 150px;
+    padding: 0 8px;
+    justify-content: end;
+}
+
+.toneName {
+    justify-content: center;
+}
+
+.toneName, .tintName {
+    display: flex;
+    align-items: center;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.cell {
+    cursor: pointer;
+}
+
+.cell, .highlight {
+    background-color: var(--ui-rest);
+}
+
+.swatch {
+    width: 100%;
+    height: 100%;
+}
+
+.swatch.highlight {
+    border-radius: 9999px;
+}

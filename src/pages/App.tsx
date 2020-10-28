@@ -1,27 +1,22 @@
-import React, { ReactElement, useState } from 'react'
-import ColorsGraph from './ColorsGraph/ColorsGraph'
+import React, { ReactElement } from "react";
+import Palette from "./Palette/Palette";
+import ColorsDiagramOfTone from "./ColorsDiagramOfTone/ColorsDiagramOfTone";
+import ColorsDiagramOfTint from "./ColorsDiagramOfTint/ColorsDiagramOfTint";
 
 export default function App(): ReactElement {
-
-	const [ colors, setColors ] = useState([
-		{ l: 20, c: 20, h: 120 },
-		{ l: 50, c: 50, h: 123 },
-		{ l: 80, c: 20, h: 126 },
-	])
-    
-	const handleChange = (i, val) => {
-		const nextColor = { ...colors[i], l: val }
-		const nextColors = [ ...colors ]
-		nextColors[i] = nextColor
-		setColors(nextColors)
-	}
-
-	return (
-		<ColorsGraph
-			colors={colors}
-			channel={'l'}
-			selected={0}
-			onChange={handleChange}
-		/>
-	)
+  return (
+    <div className="or-app or-theme--light flex flex-row">
+      <Palette className="or-section or-theme--light-gray" />
+      <div className="flex flex-col">
+        <ColorsDiagramOfTint channel="l" />
+        <ColorsDiagramOfTint channel="c" />
+        <ColorsDiagramOfTint channel="h" />
+      </div>
+      <div className="flex flex-col">
+        <ColorsDiagramOfTone channel="l" />
+        <ColorsDiagramOfTone channel="c" />
+        <ColorsDiagramOfTone channel="h" />
+      </div>
+    </div>
+  );
 }
