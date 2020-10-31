@@ -26,8 +26,8 @@ function Palette({ className }: PaletteProps): ReactElement {
         <div
             className={`${className} ${styles.grid}`}
             style={{
-                gridTemplateRows: `24px repeat(${tints.length}, 34px)`,
-                gridTemplateColumns: `min-content repeat(${tones.length}, 34px)`
+                gridTemplateRows: `24px repeat(${tints.length}, minmax(34px, max-content))`,
+                gridTemplateColumns: `1fr repeat(${tones.length}, minmax(34px, max-content))`
             }}
         >
             <div />

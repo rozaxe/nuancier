@@ -1,6 +1,39 @@
 .grid {
   display: grid;
-  grid-template-columns: 8px 1fr;
+  grid-template-columns: min-content 1fr;
   grid-template-rows: 24px 1fr;
-  grid-gap: 10px;
+  grid-gap: 4px;
+}
+
+.badge {
+  align-self: center;
+
+  background-color: var(--ui-rest);
+  border-radius: 9999px;
+  width: 20px;
+  height: 20px;
+  font-family: monospace;
+  font-size: 12px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gradient {
+  width: 8px;
+  justify-self: center;
+  border-radius: 9999px;
+}
+
+.lightness {
+  background: linear-gradient(to top, black 0%, white 105%);
+}
+
+.chroma {
+  background: linear-gradient(to top, gray 0%, red 100%);
+}
+
+.hue {
+  background: linear-gradient(to top, red 0%, #ff0 17%, lime 33%, cyan 50%, blue 66%, #f0f 83%, red 100%);
 }

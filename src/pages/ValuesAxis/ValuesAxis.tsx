@@ -8,7 +8,7 @@ type ValuesAxisProps = {
 }
 
 export default function ValuesAxis(props: ValuesAxisProps) {
-	const handleChange = (delta, i) => {
+	const handleChange = (delta: number, i: number) => {
 		props.onChange?.(i, props.colors[i][props.channel] + delta)
 	}
 

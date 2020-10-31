@@ -6,7 +6,7 @@ export class InterfaceService {
         makeAutoObservable(this, {})
     }
 
-    private _tintSelected = 'b'
+    private _tintSelected = '0'
 
     get tintSelected() {
         return this._tintSelected
@@ -16,7 +16,7 @@ export class InterfaceService {
         this._tintSelected = value
     }
 
-    private _toneSelected = '500'
+    private _toneSelected = '0'
 
     get toneSelected() {
         return this._toneSelected
@@ -24,6 +24,16 @@ export class InterfaceService {
 
     set toneSelected(value: string) {
         this._toneSelected = value
+    }
+
+    private _isPaletteEditModalOpen = false
+
+    get isPaletteEditModalOpen() {
+        return this._isPaletteEditModalOpen
+    }
+
+    set isPaletteEditModalOpen(value: boolean) {
+        this._isPaletteEditModalOpen = value
     }
 }
 

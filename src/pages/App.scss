@@ -1,0 +1,64 @@
+$duration: 300ms;
+
+.app-diagram {
+  min-width: 300px;
+  height: 150px;
+}
+
+.app-divider {
+  background-color: var(--ui-rest);
+  flex: 0 0 1px;
+  align-self: stretch;
+}
+
+.app-transition-modal-enter {
+  &.or-overlay--backdrop {
+    opacity: 0;
+  }
+
+  & > .or-dialog {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.app-transition-modal-enter-active {
+  &.or-overlay--backdrop {
+    opacity: 1;
+    transition: opacity $duration ease-out;
+  }
+
+  & > .or-dialog {
+    opacity: 1;
+    transform: scale(1);
+    transition-property: opacity transform;
+    transition-duration: $duration;
+    transition-timing-function: ease-out;
+  }
+}
+
+.app-transition-modal-exit {
+  &.or-overlay--backdrop {
+    opacity: 1;
+  }
+
+  & > .or-dialog {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.app-transition-modal-exit-active {
+  &.or-overlay--backdrop {
+    opacity: 0;
+    transition: opacity $duration ease-in;
+  }
+
+  & > .or-dialog {
+    opacity: 0;
+    transform: scale(0.8);
+    transition-property: opacity transform;
+    transition-duration: $duration;
+    transition-timing-function: ease-in;
+  }
+}

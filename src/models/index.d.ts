@@ -24,3 +24,12 @@ declare type Tint = {
 	id: string
 	name: string
 }
+
+declare type Link = {
+	previous?: string
+	next?: string
+}
+
+declare type LinkedTone = Tone & Link
+
+declare type LinkedTint = Tint & Link

@@ -1,4 +1,4 @@
-// @ts-expect-error: Custom webpack loader for importing Web Worker
+// @ts-ignore Module not found
 import DrawerWorker from 'workerize-loader!./worker' // eslint-disable-line import/no-webpack-loader-syntax
 
 import React, { Component, createRef, FunctionComponent, RefObject } from 'react'
@@ -6,6 +6,7 @@ import { withResizeDetector } from 'react-resize-detector'
 import classNames from 'classnames'
 import { debounce } from 'lodash-es'
 import styles from './DisplayableArea.module.scss'
+import { domainFor } from '../../tools/lch'
 
 /**
  * @see https://github.com/d3/d3-contour
@@ -24,18 +25,7 @@ type DisplayableAreaProps = {
 type ResizeProps = {
 	width: number
 	height: number
-}
-
-function domainFor(channel) {
-	switch (channel) {
-		case 'l':
-			return [100, 0]
-		case 'c':
-			return [100, 0]
-		case 'h':
-			return [360, 0]
-	}
-	throw new Error('Wrong channel')
+	targetRef: RefObject<HTMLDivElement>
 }
 
 class DisplayableArea extends Component<DisplayableAreaProps & ResizeProps> {
@@ -46,34 +36,30 @@ class DisplayableArea extends Component<DisplayableAreaProps & ResizeProps> {
 	}
 
 	canvasRef: RefObject<HTMLCanvasElement> = createRef()
-	debounceDrawArea: () => void
 	worker: any // Type of DrawerWorker
 	working: boolean = false
-	context2d: CanvasRenderingContext2D
-	absoluteWidth: number
-	absoluteHeight: number
-
-	constructor(props) {
-		super(props)
-	}
+	context2d!: CanvasRenderingContext2D
+	debounceDrawArea!: () => void
+	absoluteWidth!: number
+	absoluteHeight!: number
 
 	componentDidMount() {
 		this.debounceDrawArea = debounce(this.drawArea, 100, { trailing: true })
-		this.context2d = this.canvasRef.current.getContext('2d')
+		this.context2d = this.canvasRef.current!.getContext('2d')!
 	}
 
-	componentDidUpdate(prevProps) {
+	componentDidUpdate(prevProps: DisplayableAreaProps & ResizeProps) {
 		const { colors, channel, width, height } = this.props
 
 		// Redraw on resize
 		if (width !== prevProps.width || height !== prevProps.height) {
-			this.absoluteWidth = width * (window.devicePixelRatio || 1)
-			this.absoluteHeight = height * (window.devicePixelRatio || 1)
+			this.absoluteWidth = Math.ceil(width * (window.devicePixelRatio || 1))
+			this.absoluteHeight = Math.ceil(height * (window.devicePixelRatio || 1))
 
-			this.canvasRef.current.style.width = `${width}px`
-			this.canvasRef.current.style.height = `${height}px`
-			this.canvasRef.current.width = this.absoluteWidth
-			this.canvasRef.current.height = this.absoluteHeight
+			this.canvasRef.current!.style.width = `${width}px`
+			this.canvasRef.current!.style.height = `${height}px`
+			this.canvasRef.current!.width = this.absoluteWidth
+			this.canvasRef.current!.height = this.absoluteHeight
 
 			this.requestAreaDrawing()
 		}
@@ -88,7 +74,7 @@ class DisplayableArea extends Component<DisplayableAreaProps & ResizeProps> {
 		this.debounceDrawArea()
 		if (this.working) return
 		this.working = true
-		this.props.onStartDrawing()
+		this.props.onStartDrawing?.()
 	}
 
 	drawArea = async () => {
@@ -100,28 +86,30 @@ class DisplayableArea extends Component<DisplayableAreaProps & ResizeProps> {
 
 		const head = this.props.colors[0] ?? { h: 0 }
 
-		const pixels = await this.worker.drawChart({
-			width: this.absoluteWidth,
-			height: this.absoluteHeight,
-			from: { l: 100, c: 0, h: head.h },
-			to: { l : 0, c: 0, h: head.h },
-			steps: this.props.colors,
-			domainForChannel: domainFor(this.props.channel),
-			channel: this.props.channel,
-		})
-		
-		const imageData = new ImageData(pixels, this.absoluteWidth, this.absoluteHeight)
-		this.context2d.putImageData(imageData, 0, 0)
-
-		this.worker.terminate()
-		this.worker = null
-		this.working = false
-		this.props.onDoneDrawing()
+		try {
+			const pixels = await this.worker.drawChart({
+				width: this.absoluteWidth,
+				height: this.absoluteHeight,
+				from: { l: 100, c: 0, h: head.h },
+				to: { l : 0, c: 0, h: head.h },
+				steps: this.props.colors,
+				domainForChannel: [...domainFor(this.props.channel)].reverse() as [number, number],
+				channel: this.props.channel,
+			})
+			
+			const imageData = new ImageData(pixels, this.absoluteWidth, this.absoluteHeight)
+			this.context2d.putImageData(imageData, 0, 0)
+	
+			this.worker.terminate()
+			this.worker = null
+			this.working = false
+			this.props.onDoneDrawing?.()
+		} catch (_) {}
 	}
 
 	render() {
 		return (
-			<div className={classNames(styles.container, this.props.className)}>
+			<div ref={this.props.targetRef} className={classNames(styles.container, this.props.className)}>
 				<canvas ref={this.canvasRef} className={styles.content} />
 			</div>
 		)

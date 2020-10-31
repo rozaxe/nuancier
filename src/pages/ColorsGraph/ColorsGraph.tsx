@@ -4,6 +4,7 @@ import AnchorsPoint from '../AnchorsPoint/AnchorsPoint'
 import DisplayableArea from '../DisplayableArea/DisplayableArea'
 
 import styles from './ColorsGraph.module.scss'
+import Spinner from '../Spinner/Spinner'
 
 type ColorsCurvesProps = {
 	colors: Color[]
@@ -20,6 +21,7 @@ export default function ColorsGraph(props: ColorsCurvesProps): ReactElement {
 			<DisplayableArea className={styles.graph} colors={props.colors} channel={props.channel} onStartDrawing={() => setIsRedrawing(true)} onDoneDrawing={() => setIsRedrawing(false)} />
 			{ isRedrawing && <div className={classNames(styles.graph, styles.buffer)} /> }
 			<AnchorsPoint className={styles.graph} colors={props.colors} onChange={props.onChange} channel={props.channel} selected={props.selected} />
+			{ isRedrawing && <Spinner className={styles.spinner} /> }
 		</div>
 	)
 }

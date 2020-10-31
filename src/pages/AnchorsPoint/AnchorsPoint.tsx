@@ -5,6 +5,7 @@ import { scaleLinear } from 'd3-scale'
 import _ from 'lodash'
 import { withResizeDetector } from 'react-resize-detector'
 import styles from './AnchorsPoint.module.scss'
+import { domainFor } from '../../tools/lch'
 
 
 type AnchorsPointProps = {
@@ -18,18 +19,7 @@ type AnchorsPointProps = {
 type ResizeProps = {
 	width: number
 	height: number
-}
-
-function domainFor(channel): [number, number] {
-	switch (channel) {
-		case 'l':
-			return [100, 0]
-		case 'c':
-			return [100, 0]
-		case 'h':
-			return [360, 0]
-	}
-	throw new Error('Wrong channel')
+	targetRef: RefObject<HTMLDivElement>
 }
 
 const lch = converter('lch')
@@ -45,28 +35,24 @@ class AnchorsPoint extends Component<AnchorsPointProps & ResizeProps> {
 		onChange: () => null,
 	}
 
-	containerRef: RefObject<HTMLDivElement> = createRef()
-	containerRect: DOMRect
-	handles: NodeListOf<HTMLDivElement>
-	absoluteWidth: number
-	absoluteHeight: number
-	domainForChannel: [number, number]
+	// containerRef: RefObject<HTMLDivElement> = createRef()
 	axisForChannel: any // d3-scale range
-
-	constructor(props) {
-		super(props)
-	}
+	containerRect!: DOMRect
+	handles!: NodeListOf<HTMLDivElement>
+	absoluteWidth!: number
+	absoluteHeight!: number
+	domainForChannel!: [number, number]
 
 	componentDidMount() {
 		this.selectHandles()
 	}
 
-	componentDidUpdate(prevProps) {
+	componentDidUpdate(prevProps: AnchorsPointProps & ResizeProps) {
 		const { colors, channel, width, height } = this.props
 
 		// Update range on channel or height change
 		if (channel !== prevProps.channel || height !== prevProps.height) {
-			this.domainForChannel = domainFor(channel)
+			this.domainForChannel = [...domainFor(channel)].reverse() as [number, number]
 			this.axisForChannel = scaleLinear()
 				.domain(this.domainForChannel)
 				.range([0, height])
@@ -91,13 +77,13 @@ class AnchorsPoint extends Component<AnchorsPointProps & ResizeProps> {
 	}
 
 	computeContainerSize = () => {
-		this.containerRect = this.containerRef.current.getBoundingClientRect()
+		this.containerRect = this.props.targetRef.current!.getBoundingClientRect()
 		this.absoluteWidth = this.props.width
 		this.absoluteHeight = this.props.height
 	}
 
 	selectHandles = () => {
-		this.handles = this.containerRef.current.querySelectorAll('.handleArea')
+		this.handles = this.props.targetRef.current!.querySelectorAll('.handleArea')
 	}
 
 	position = () => {
@@ -112,15 +98,15 @@ class AnchorsPoint extends Component<AnchorsPointProps & ResizeProps> {
 		})
 	}
 
-	startMove = (event, index) => {
+	startMove = (event: any, index: number) => {
 		const rect = event.target.getBoundingClientRect()
 		const displacement = event.clientY - rect.top - rect.height / 2
 
-		const handleMouseMove = event => {
+		const handleMouseMove = (event: any) => {
 			const y = event.clientY - this.containerRect.top - displacement
 			const relative = 1 - y / this.containerRect.height
 			const value = (this.domainForChannel[0] - this.domainForChannel[1]) * relative
-			this.props.onChange(index, _.clamp(value, this.domainForChannel[1], this.domainForChannel[0]))
+			this.props.onChange?.(index, _.clamp(value, this.domainForChannel[1], this.domainForChannel[0]))
 		}
 
 		const handleMouseUp = () => {
@@ -134,7 +120,7 @@ class AnchorsPoint extends Component<AnchorsPointProps & ResizeProps> {
 
 	render() {
 		return (
-			<div className={classNames(styles.container, this.props.className)} ref={this.containerRef}>
+			<div ref={this.props.targetRef} className={classNames(styles.container, this.props.className)}>
 				{this.props.colors.map((color, i) => (
 					<div key={i} className={classNames('handleArea', styles.handleArea)} onMouseDown={event => this.startMove(event, i)}>
 						<div className={classNames(styles.handle, { [styles.selected]: i === this.props.selected})} style={{ backgroundColor: toHex(color) }} />
