@@ -7,6 +7,7 @@ import ColorsDiagramOfTint from "../ColorsDiagramOfTint/ColorsDiagramOfTint";
 import ColorsDiagramOfTone from "../ColorsDiagramOfTone/ColorsDiagramOfTone";
 import Palette from "../Palette/Palette";
 import PaletteEditionDialog from '../PaletteEditionDialog/PaletteEditionDialog';
+import ColorEdition from '../ColorEdition/ColorEdition';
 
 function Home(): ReactElement {
   const interfaceService = useInterfaceService()
@@ -24,23 +25,29 @@ function Home(): ReactElement {
           Edit palette
         </button>
       </div>
-      <div className="mr-8" />
-      <div className="flex-grow flex flex-col p-1">
-        <ColorsDiagramOfTint className="app-diagram mb-4" channel="l" />
-        <div className="my-1 app-divider" />
-        <ColorsDiagramOfTint className="app-diagram mb-4" channel="c" />
-        <div className="my-1 app-divider" />
-        <ColorsDiagramOfTint className="app-diagram"channel="h" />
+      <div className="flex-grow flex flex-col">
+        <ColorEdition />
+        <div className="or-divider--xl mx-0" />
+        <div className="or-row flex-grow">
+          <div className="mr-8" />
+          <div className="flex-grow flex flex-col p-1">
+            <ColorsDiagramOfTint className="app-diagram mb-4" channel="l" />
+            <div className="my-1 app-divider" />
+            <ColorsDiagramOfTint className="app-diagram mb-4" channel="c" />
+            <div className="my-1 app-divider" />
+            <ColorsDiagramOfTint className="app-diagram"channel="h" />
+          </div>
+          <div className="mr-8" />
+          <div className="flex-grow flex flex-col p-1">
+            <ColorsDiagramOfTone className="app-diagram mb-4" channel="l" />
+            <div className="my-1 app-divider" />
+            <ColorsDiagramOfTone className="app-diagram mb-4" channel="c" />
+            <div className="my-1 app-divider" />
+            <ColorsDiagramOfTone className="app-diagram" channel="h" />
+          </div>
+          <div className="mr-8" />
+        </div>
       </div>
-      <div className="mr-8" />
-      <div className="flex-grow flex flex-col p-1">
-        <ColorsDiagramOfTone className="app-diagram mb-4" channel="l" />
-        <div className="my-1 app-divider" />
-        <ColorsDiagramOfTone className="app-diagram mb-4" channel="c" />
-        <div className="my-1 app-divider" />
-        <ColorsDiagramOfTone className="app-diagram" channel="h" />
-      </div>
-      <div className="mr-8" />
       <PaletteEditionDialog />
     </>
   );

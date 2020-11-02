@@ -1,7 +1,6 @@
 import { createContext, useContext } from "react";
 import { makeAutoObservable } from 'mobx';
 import _find from 'lodash-es/find'
-import _filter from 'lodash-es/filter'
 import _values from 'lodash-es/values'
 import _clamp from 'lodash-es/clamp'
 import _round from 'lodash-es/round'
@@ -39,11 +38,25 @@ export class PaletteService {
     }
 
     getSwatchesByTone = (toneId: string): Swatch[] => {
-        return _filter(this._swatches, (swatch) => swatch.toneId === toneId)
+        const swatchByTint = _keyBy(
+            _pickBy(
+                this._swatches,
+                (swatch) => swatch.toneId === toneId
+            ),
+            (swatch) => swatch.tintId
+        )
+        return this.tints.map(tint => swatchByTint[tint.id])
     }
 
     getSwatchesByTint = (tintId: string): Swatch[] => {
-        return _filter(this._swatches, (swatch) => swatch.tintId === tintId)
+        const swatchByTone = _keyBy(
+            _pickBy(
+                this._swatches,
+                (swatch) => swatch.tintId === tintId
+            ),
+            (swatch) => swatch.toneId
+        )
+        return this.tones.map(tone => swatchByTone[tone.id])
     }
 
     getSwatchByToneAndTint = (toneId: string, tintId: string): Swatch => {
@@ -151,37 +164,61 @@ export class PaletteService {
     }
 
     moveUpTint = (tintId: string) => {
-        this._moveUp(this._tints, tintId)
+        const current = this._tints[tintId]
+        const previous = current.previous ? this._tints[current.previous] : null
+        this._swap(this._tints, current, previous)
         if (this._tints[tintId].previous == null) this._tintHead = tintId
     }
 
     moveUpTone = (toneId: string) => {
-        this._moveUp(this._tones, toneId)
+        const current = this._tones[toneId]
+        const previous = current.previous ? this._tones[current.previous] : null
+        this._swap(this._tones, current, previous)
         if (this._tones[toneId].previous == null) this._toneHead = toneId
     }
 
-    _moveUp = (collections: any, id: string) => {
-        const node = collections[id]
-        const previous = collections[node.previous!]
-        const next = collections[node.next!]
-        if (!previous) return
-        node.previous = previous.previous
-        previous.next = node.next
-        previous.previous = node.id
-        if (!next) return
-        next.previous = previous.id
+    moveDownTint = (tintId: string) => {
+        const current = this._tints[tintId]
+        const next = current.next ? this._tints[current.next] : null
+        this._swap(this._tints, current, next)
+        if (next!.previous == null) this._tintHead = next!.id
     }
 
-    _moveDown = (collections: any, id: string) => {
-        const node = collections[id]
-        const previous = collections[node.previous!]
-        const next = collections[node.next!]
-        if (!previous) return
-        node.previous = previous.previous
-        previous.next = node.next
-        previous.previous = node.id
-        if (!next) return
-        next.previous = previous.id
+    moveDownTone = (toneId: string) => {
+        const current = this._tones[toneId]
+        const next = current.next ? this._tones[current.next] : null
+        this._swap(this._tones, current, next)
+        if (next!.previous == null) this._toneHead = next!.id
+    }
+
+    _swap = (collections: any, alpha: any, beta: any) => {
+        if (alpha == null || beta == null) return
+        if (alpha.next === beta.id) {
+            // Alpha -> Beta
+            if (alpha.previous) collections[alpha.previous].next = beta.id
+            if (beta.next) collections[beta.next].previous = alpha.id
+
+            alpha.next = beta.next
+            beta.previous = alpha.previous
+
+            alpha.previous = beta.id
+            beta.next = alpha.id
+
+        } else if (alpha.previous === beta.id) {
+            // Beta -> Alpha
+            if (beta.previous) collections[beta.previous].next = alpha.id
+            if (alpha.next) collections[alpha.next].previous = beta.id
+
+            beta.next = alpha.next
+            alpha.previous = beta.previous
+
+            alpha.next = beta.id
+            beta.previous = alpha.id
+
+        } else {
+            // TODO Handle not adjescent nodes
+            throw new Error("Unimplemented case")
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-import React, { Component, createRef, FunctionComponent, RefObject } from 'react'
+import React, { Component, FunctionComponent, RefObject } from 'react'
 import classNames from 'classnames'
 import { converter, formatHex } from 'culori'
 import { scaleLinear } from 'd3-scale'
