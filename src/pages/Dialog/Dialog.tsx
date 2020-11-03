@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from "react";
+import React, { ReactElement, ReactNode, useEffect } from "react";
 import { CSSTransition } from "react-transition-group";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +17,14 @@ export default function Dialog({ isOpen, className, children, onClose, canClose 
         if (!canClose) return
         onClose?.()
     }
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.classList.add('overflow-hidden')
+        } else {
+            document.body.classList.remove('overflow-hidden')
+        }
+    }, [isOpen])
 
     return (
         <CSSTransition

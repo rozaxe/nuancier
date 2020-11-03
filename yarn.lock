@@ -3303,6 +3303,11 @@
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
   integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
 
+"@types/file-saver@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@types/file-saver/-/file-saver-2.0.1.tgz#e18eb8b069e442f7b956d313f4fadd3ef887354e"
+  integrity sha512-g1QUuhYVVAamfCifK7oB7G3aIl4BbOyzDOqVyUfEr4tfBKrXfeH+M+Tg7HKCXSrbzxYdhyCP7z9WbKo0R2hBCw==
+
 "@types/glob-base@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@types/glob-base/-/glob-base-0.3.0.tgz#a581d688347e10e50dd7c17d6f2880a10354319d"
@@ -7620,6 +7625,11 @@ file-loader@^6.0.0:
   dependencies:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
+
+file-saver@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-2.0.2.tgz#06d6e728a9ea2df2cce2f8d9e84dfcdc338ec17a"
+  integrity sha512-Wz3c3XQ5xroCxd1G8b7yL0Ehkf0TC9oYC6buPFkNnU9EnaPlifeAFCyCh+iewXTyFRcg0a6j3J7FmJsIhlhBdw==
 
 file-system-cache@^1.0.5:
   version "1.0.5"
@@ -12850,10 +12860,10 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.1.tgz#60e5a5fd64a7f8bfa4d2ab2ed6fdf4c85bad154e"
   integrity sha512-w7fLxIRCRT7U8Qu53jQnJyPkYZIaR4n5151KMfcJlO/A9397Wxb1amJvROTK6TOnp7PfoAmg/qXiNHI+08jRfA==
 
-r-orchid@0.0.18:
-  version "0.0.18"
-  resolved "https://registry.yarnpkg.com/r-orchid/-/r-orchid-0.0.18.tgz#a4c48cd1fe42227d62af4b23f578e9419748351d"
-  integrity sha512-bQtJMIG4ksold4cHa1ZYPnFK/xwFtGbXrDQnErvAzLJ5+t2izEr2obw2MNFc63H6bx8ukpS92dP/T9AnDJzrOA==
+r-orchid@0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/r-orchid/-/r-orchid-0.0.19.tgz#651dd888a73967db89c5b142c507cb72c84ea607"
+  integrity sha512-8kPPYsS/CdViiRyEVuJJK+z6AFWIbqfN48zkhAZlZ/UCbL/aoTLy52MOD1fgIpQX6QQmVnW9TZzzqL5T0JY2QA==
   dependencies:
     "@tailwindcss/ui" "^0.3.0"
     tailwindcss "^1.4.6"

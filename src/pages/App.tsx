@@ -32,7 +32,7 @@ export default function App(): ReactElement {
   }, [storageService, paletteService, interfaceService])
 
   return (
-    <div className="or-app or-theme--light flex flex-row">
+    <div className="or-app or-theme--light flex flex-column">
       {initialized && <Home />}
       {!initialized && <Spinner className="m-2 align-self-start" />}
     </div>

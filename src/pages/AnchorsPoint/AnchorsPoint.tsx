@@ -99,6 +99,7 @@ class AnchorsPoint extends Component<AnchorsPointProps & ResizeProps> {
 	}
 
 	startMove = (event: any, index: number) => {
+		this.computeContainerSize()
 		const rect = event.target.getBoundingClientRect()
 		const displacement = event.clientY - rect.top - rect.height / 2
 

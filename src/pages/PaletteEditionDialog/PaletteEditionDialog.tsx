@@ -74,7 +74,7 @@ function PaletteEditionDialog(): ReactElement {
                 />
                 <button className="or-button--ghost" onClick={() => {
                     paletteService.deleteTint(tint.id)
-                }}>
+                }} disabled={paletteService.tints.length === 1}>
                     <FontAwesomeIcon icon={faTrash} />
                 </button>
               </div>
@@ -111,7 +111,7 @@ function PaletteEditionDialog(): ReactElement {
                 />
                 <button className="or-button--ghost" onClick={() => {
                     paletteService.deleteTone(tone.id)
-                }}>
+                }} disabled={paletteService.tones.length === 1}>
                     <FontAwesomeIcon icon={faTrash} />
                 </button>
               </div>
