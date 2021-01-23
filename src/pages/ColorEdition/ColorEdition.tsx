@@ -1,6 +1,7 @@
 import { observer } from "mobx-react";
 import React, { ReactElement, useState, useEffect } from "react";
 import { formatHex, converter } from 'culori'
+import _clamp from 'lodash/clamp'
 import Input from "../Input/Input";
 import usePaletteService from "../../services/PaletteService";
 import useInterfaceService from "../../services/InterfaceService";
@@ -18,11 +19,19 @@ function ColorEdition(props: ColorEditionProps): ReactElement {
 
     const swatch = paletteService.getSwatchByToneAndTint(interfaceService.toneSelected, interfaceService.tintSelected)
 
+    const [lightnessValue, setLightnessValue] = useState('' + swatch.color.l)
+    const [chromaValue, setChromaValue] = useState('' + swatch.color.c)
+    const [hueValue, setHueValue] = useState('' + swatch.color.c)
+
     useEffect(() => {
         setHexValue(
             formatHex({ ...swatch.color, mode: 'lch' })
                 .replace('#', '')
         )
+        setLightnessValue('' + swatch.color.l)
+        setChromaValue('' + swatch.color.c)
+        setHueValue('' + swatch.color.h)
+
     }, [swatch.color, swatch.color.l, swatch.color.c, swatch.color.h])
 
     const handleChangeHex = (value: string) => {
@@ -35,9 +44,13 @@ function ColorEdition(props: ColorEditionProps): ReactElement {
         setHexValue(value)
     }
 
-    function parseFloatOrZero(value: string): number {
-        const parsed = Number.parseFloat(value)
-        return isNaN(parsed) ? 0 : parsed
+    const handleChannelChange = (from: number, to: number, channel: Channel, value: string, setValue: any) => {
+        const parsedValued = Number.parseFloat(value)
+        if (!isNaN(parsedValued)) {
+            const clampedValue = _clamp(parsedValued, from, to)
+            paletteService.patchChannel(swatch.id, channel, clampedValue)
+        }
+        setValue(value)
     }
 
     return (
@@ -47,22 +60,22 @@ function ColorEdition(props: ColorEditionProps): ReactElement {
                     type="number"
                     placeholder="42"
                     leftElement={<>L</>}
-                    value={`${swatch.color.l.toFixed(1)}`}
-                    onChange={v => paletteService.patchChannel(swatch.id, 'l', parseFloatOrZero(v))}
+                    value={`${lightnessValue}`}
+                    onChange={v => handleChannelChange(0, 100, 'l', v, setLightnessValue)}
                 />
                 <Input
                     type="number"
                     placeholder="42"
                     leftElement={<>C</>}
-                    value={`${swatch.color.c.toFixed(1)}`}
-                    onChange={v => paletteService.patchChannel(swatch.id, 'c', parseFloatOrZero(v))}
+                    value={`${chromaValue}`}
+                    onChange={v => handleChannelChange(0, 100, 'c', v, setChromaValue)}
                 />
                 <Input
                     type="number"
                     placeholder="42"
                     leftElement={<>h</>}
-                    value={`${swatch.color.h.toFixed(1)}`}
-                    onChange={v => paletteService.patchChannel(swatch.id, 'h', parseFloatOrZero(v))}
+                    value={`${hueValue}`}
+                    onChange={v => handleChannelChange(0, 360, 'h', v, setChromaValue)}
                 />
             </div>
             <Input
